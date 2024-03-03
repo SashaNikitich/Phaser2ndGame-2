@@ -1,0 +1,35 @@
+body {
+    background-color: black;
+    font-size: 20px;
+    color: white;
+    font-family: "Madimi One", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    top: 20px;
+}
+
+canvas {
+    position: absolute;
+    top: 0;
+    left: 600px;
+
+}
+
+.rules {
+    position: absolute;
+    height: 700px;
+    top: 0;
+}
+
+.title {
+    text-align: center;
+    font-size: 30px;
+}
+
+ul {
+    list-style: inthernit;
+}
+
+strong {
+    Color: darkgreen;
+}
