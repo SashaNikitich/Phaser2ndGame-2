@@ -1,7 +1,7 @@
 var config = {
     type: Phaser.AUTO,
-    width: 1200,
-    height: 700,
+    width: 1920,
+    height: 1080,
     physics: {
         default: 'arcade',
         arcade: {
@@ -28,29 +28,68 @@ var TimerText;
 var timer;
 var timeElapsed = 0;
 var gameover = false;
+var objects;
 
 function preload() {
     // Load assets
-    this.load.image('background', 'assets/background.png');
-    this.load.image('platform', 'assets/platform.png');
+    this.load.image('background', 'assets/background/background.jpg');
+    this.load.image('platform', 'assets/background/tiles/platform.png');
     this.load.image('star', 'assets/star.png');
+    this.load.image('stone', 'assets/objects/Stone.png');
+    this.load.image('tree1', 'assets/objects/Tree_1.png');
+    this.load.image('tree2', 'assets/objects/Tree_2.png');
+    this.load.image('start', 'assets/background/tiles')
     this.load.spritesheet('gg', 'assets/plane.png', { frameWidth: 90, frameHeight: 90 });
 }
 
 function create ()
 {
     //#region Background
-    this.background = this.add.tileSprite(0, 0, worldWidth, game.config.height, "background").setOrigin(0, 0);
+    this.background = this.add.image(0, 0, "background").setOrigin(0, 0).setScrollFactor(0);
 
+    //Creating platforms
     platforms = this.physics.add.staticGroup();
 
-    for (var x = 0; x <= worldWidth; x = x + 268) {
-        platforms.create(x, 700 - 100, 'platform').setOrigin(0, 0).refreshBody();
+    for (var x = 0; x <= worldWidth; x = x + 128) {
+        platforms.create(x, 1080 - 128, 'platform').setOrigin(0, 0).refreshBody();
     }
+
+    //Creating objects
+    objects = this.physics.add.staticGroup();
+
+    for (var x = 0; x <= worldWidth; x = x + Phaser.Math.Between(200, 800)) {
+        objects
+            .create(x, 1080 - 128, 'tree1')
+            .setScale(Phaser.Math.FloatBetween(0.5, 2,))
+            .setDepth(Phaser.Math.Between(0, 2))
+            .setOrigin(0, 1)
+            .refreshBody();
+        objects
+            .create(x = x + Phaser.Math.Between(50, 200), 1080 - 128, 'tree2')
+            .setScale(Phaser.Math.FloatBetween(0.5, 2,))
+            .setDepth(Phaser.Math.Between(0, 2))
+            .setOrigin(0, 1)
+            .refreshBody();
+        objects
+            .create(x = x + Phaser.Math.Between(45, 300), 1080 - 128, 'stone')
+            .setScale(Phaser.Math.FloatBetween(0.5, 2,))
+            .setDepth(Phaser.Math.Between(0, 2))
+            .setOrigin(0, 1)
+            .refreshBody();
+    }
+
+    //Creating levitating platforms
+
+    for (var x = 0; x <= worldWidth; x = x + Phaser.Math.Between(200, 300)) {
+        var y = Phaser.Math.Between(300, 800);
+        platforms.create(x - 128, y, '')
+
+    }
+
     //#endregion
 
     //#region Player
-    player = this.physics.add.sprite(100, 450, 'gg');
+    player = this.physics.add.sprite(500, 540, 'gg');
 
     player.setCollideWorldBounds(true);
 
@@ -73,6 +112,8 @@ function create ()
 
     //Colider player, platforms
     this.physics.add.collider(player, platforms);
+    //Colider platforms, objects
+    this.physics.add.collider(platforms, objects);
 
 
     //#region Stars
@@ -95,8 +136,8 @@ function create ()
     //#endregion
 
     //Camera settings
-    this.cameras.main.setBounds(0, 0, worldWidth, 700);
-    this.physics.world.setBounds(0, 0, worldWidth, 700);
+    this.cameras.main.setBounds(0, 0, worldWidth, 1080);
+    this.physics.world.setBounds(0, 0, worldWidth, 1080);
 
     // Start camera follow
     this.cameras.main.startFollow(player);
