@@ -23,6 +23,6 @@
 
 ## Звіт про проблеми та Зворотний зв'язок
 
-Якщо у вас є пропозиції чи проблеми, [створіть Issue](https://github.com/your-username/your-repo/issues) у нашому репозиторії на GitHub.
+Якщо у вас є пропозиції чи проблеми, [Issue]((https://github.com/SashaNikitich/Phaser2ndGame-2/issues)) у нашому репозиторії на GitHub.
 
 ## Приємного проведення часу у нашому світі!
