@@ -27,9 +27,7 @@ var star;
 var TimerText;
 var timer;
 var timeElapsed = 0;
-var gameover = false;
 var objects;
-var gameover = false;
 var lives = 5;
 
 function preload() {
@@ -122,7 +120,7 @@ function create ()
     //#region Stars
     stars = this.physics.add.group({
         key: 'star',
-        repeat: 140,
+        repeat: 138,
         setXY: { x: 12, y: 0, stepX: 70 }
     });
 
@@ -190,16 +188,16 @@ function collectStar (player, star)
 {
     star.disableBody(true, true);
 
-    var bomb = bombs.create(16, 20, 'bomb');
+    var bomb = bombs.create(20, 20, 'bomb');
     bomb.setBounce(1);
     bomb.setCollideWorldBounds(true);
     bomb.setVelocity(Phaser.Math.Between(-200, 200), 20);
 
     Score += 1;
     ScoreText.setText('Stars: ' + Score);
-    
-    if (gameover == true) {
-        
+
+    if (Score == 138){
+
         this.add.text(760, 540, 'Your game time: ' + timeElapsed,  {fontSize: '50px', fill: '#0000FF'}).setScrollFactor(0);
         this.add.text(660, 490, 'For restart press: ENTER', {fontSize: '50px', fill: '#0000FF'}).setScrollFactor(0);
 
@@ -209,10 +207,7 @@ function collectStar (player, star)
                 window.location.reload();
             }
         });
-    }
 
-    if (Score == 138){
-        gameover = true;
     }
 }
 
@@ -223,9 +218,18 @@ function hitBomb(player, bomb) {
     LivesText.setText('Lives: ' + lives);
 
     if (lives == 0) {
+
         this.physics.pause();
         player.setTint(0xff0000);
-        gameover = true
+
+        this.add.text(760, 540, 'Your game time: ' + timeElapsed,  {fontSize: '50px', fill: '#0000FF'}).setScrollFactor(0);
+        this.add.text(660, 490, 'For restart press: ENTER', {fontSize: '50px', fill: '#0000FF'}).setScrollFactor(0);
+
+        document.addEventListener('keyup', function(event) {
+            if (event.code === 'Enter') {
+                window.location.reload();
+            }
+        });
     }
 }
 
