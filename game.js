@@ -29,6 +29,8 @@ var timer;
 var timeElapsed = 0;
 var gameover = false;
 var objects;
+var gameover = false;
+var lives = 5;
 
 function preload() {
     // Load assets
@@ -38,7 +40,10 @@ function preload() {
     this.load.image('stone', 'assets/objects/Stone.png');
     this.load.image('tree1', 'assets/objects/Tree_1.png');
     this.load.image('tree2', 'assets/objects/Tree_2.png');
-    this.load.image('start', 'assets/background/tiles')
+    this.load.image('start', 'assets/background/tiles/start.png');
+    this.load.image('middle', 'assets/background/tiles/middle.png');
+    this.load.image('end', 'assets/background/tiles/end.png');
+    this.load.image('bomb', 'assets/bomb.png')
     this.load.spritesheet('gg', 'assets/plane.png', { frameWidth: 90, frameHeight: 90 });
 }
 
@@ -65,12 +70,6 @@ function create ()
             .setOrigin(0, 1)
             .refreshBody();
         objects
-            .create(x = x + Phaser.Math.Between(50, 200), 1080 - 128, 'tree2')
-            .setScale(Phaser.Math.FloatBetween(0.5, 2,))
-            .setDepth(Phaser.Math.Between(0, 2))
-            .setOrigin(0, 1)
-            .refreshBody();
-        objects
             .create(x = x + Phaser.Math.Between(45, 300), 1080 - 128, 'stone')
             .setScale(Phaser.Math.FloatBetween(0.5, 2,))
             .setDepth(Phaser.Math.Between(0, 2))
@@ -79,13 +78,15 @@ function create ()
     }
 
     //Creating levitating platforms
-
-    for (var x = 0; x <= worldWidth; x = x + Phaser.Math.Between(200, 300)) {
-        var y = Phaser.Math.Between(300, 800);
-        platforms.create(x - 128, y, '')
-
+    for (var x = 0; x < worldWidth; x = x + Phaser.Math.Between(500,700)){
+        var y = Phaser.Math.Between(128,810);
+        platforms.create(x, y, 'start');
+        var i;
+        for (i = 1; i <= Phaser.Math.Between(1,2); i++) {
+            platforms.create(x + 128 * i, y, 'middle')
+        }
+        platforms.create(x + 128 * i, y, 'end')
     }
-
     //#endregion
 
     //#region Player
@@ -97,7 +98,7 @@ function create ()
     //#endregion
 
     //#region Timer
-    TimerText = this.add.text(16, 60, 'Time: 0', { fontSize: '50px', fill: '#000' }).setScrollFactor(0);
+    TimerText = this.add.text(16, 60, 'Time: 0', { fontSize: '50px', fill: '#0000FF' }).setScrollFactor(0);
 
     timer = this.time.addEvent({
         delay: 1000,
@@ -108,7 +109,9 @@ function create ()
     //#endregion
 
     //Score
-    ScoreText = this.add.text(16, 16, 'Stars: 0', {fontSize: '50px', fill: '#000'}).setScrollFactor(0);
+    ScoreText = this.add.text(16, 16, 'Stars: 0', {fontSize: '50px', fill: '#0000FF'}).setScrollFactor(0);
+
+    LivesText = this.add.text(1600, 16, 'Lives: 5', {fontSize: '50px', fill: '#0000FF'}).setScrollFactor(0);
 
     //Colider player, platforms
     this.physics.add.collider(player, platforms);
@@ -129,10 +132,19 @@ function create ()
     stars.children.iterate(function (child) {
 
         child.setBounceY(Phaser.Math.FloatBetween(0.6, 1));
+        child.setDepth(10);
 
     });
 
     this.physics.add.overlap(player, stars, collectStar, null, this);
+    //#endregion
+
+    //#region Bombs
+    bombs = this.physics.add.group();
+
+    this.physics.add.collider(bombs, platforms);
+
+    this.physics.add.collider(player, bombs, hitBomb, null, this);
     //#endregion
 
     //Camera settings
@@ -178,14 +190,18 @@ function collectStar (player, star)
 {
     star.disableBody(true, true);
 
+    var bomb = bombs.create(16, 20, 'bomb');
+    bomb.setBounce(1);
+    bomb.setCollideWorldBounds(true);
+    bomb.setVelocity(Phaser.Math.Between(-200, 200), 20);
+
     Score += 1;
     ScoreText.setText('Stars: ' + Score);
-
-    if (Score == 138){
-
-        //End game text
-        this.add.text(300, 300, 'Your game time: ' + timeElapsed,  {fontSize: '50px', fill: '#000'}).setScrollFactor(0);
-        this.add.text(200,360, 'For restart press: ENTER', {fontSize: '50px', fill: '#000'}).setScrollFactor(0);
+    
+    if (gameover == true) {
+        
+        this.add.text(760, 540, 'Your game time: ' + timeElapsed,  {fontSize: '50px', fill: '#0000FF'}).setScrollFactor(0);
+        this.add.text(660, 490, 'For restart press: ENTER', {fontSize: '50px', fill: '#0000FF'}).setScrollFactor(0);
 
         //Reload canvas
         document.addEventListener('keyup', function(event) {
@@ -193,6 +209,23 @@ function collectStar (player, star)
                 window.location.reload();
             }
         });
+    }
+
+    if (Score == 138){
+        gameover = true;
+    }
+}
+
+function hitBomb(player, bomb) {
+
+    lives = lives - 1;
+
+    LivesText.setText('Lives: ' + lives);
+
+    if (lives == 0) {
+        this.physics.pause();
+        player.setTint(0xff0000);
+        gameover = true
     }
 }
 
