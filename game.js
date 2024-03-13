@@ -37,7 +37,6 @@ function preload() {
     this.load.image('star', 'assets/star.png');
     this.load.image('stone', 'assets/objects/Stone.png');
     this.load.image('tree1', 'assets/objects/Tree_1.png');
-    this.load.image('tree2', 'assets/objects/Tree_2.png');
     this.load.image('start', 'assets/background/tiles/start.png');
     this.load.image('middle', 'assets/background/tiles/middle.png');
     this.load.image('end', 'assets/background/tiles/end.png');
@@ -45,8 +44,7 @@ function preload() {
     this.load.spritesheet('gg', 'assets/plane.png', { frameWidth: 90, frameHeight: 90 });
 }
 
-function create ()
-{
+function create() {
     //#region Background
     this.background = this.add.image(0, 0, "background").setOrigin(0, 0).setScrollFactor(0);
 
@@ -57,30 +55,32 @@ function create ()
         platforms.create(x, 1080 - 128, 'platform').setOrigin(0, 0).refreshBody();
     }
 
-    //Creating objects
+    //Creating multi func for objects
     objects = this.physics.add.staticGroup();
 
-    for (var x = 0; x <= worldWidth; x = x + Phaser.Math.Between(200, 800)) {
-        objects
-            .create(x, 1080 - 128, 'tree1')
-            .setScale(Phaser.Math.FloatBetween(0.5, 2,))
-            .setDepth(Phaser.Math.Between(0, 2))
-            .setOrigin(0, 1)
-            .refreshBody();
-        objects
-            .create(x = x + Phaser.Math.Between(45, 300), 1080 - 128, 'stone')
-            .setScale(Phaser.Math.FloatBetween(0.5, 2,))
-            .setDepth(Phaser.Math.Between(0, 2))
-            .setOrigin(0, 1)
-            .refreshBody();
+    function createWorldObjects(objects, asset) {
+        for (var x = 0; x <= worldWidth; x = x + Phaser.Math.FloatBetween(500, 900)) {
+            objects
+                .create(x, 1080 - 128, asset)
+                .setOrigin(0, 1)
+                .setScale(Phaser.Math.FloatBetween(0.8, 1.5,))
+                .setDepth(Phaser.Math.Between(1, 10))
+        }
     }
 
+    //Creating objects
+    stone = this.physics.add.staticGroup();
+    createWorldObjects(stone, 'stone')
+
+    tree = this.physics.add.staticGroup();
+    createWorldObjects(tree, 'tree1')
+
     //Creating levitating platforms
-    for (var x = 0; x < worldWidth; x = x + Phaser.Math.Between(500,700)){
-        var y = Phaser.Math.Between(128,810);
+    for (var x = 0; x < worldWidth; x = x + Phaser.Math.Between(500, 700)) {
+        var y = Phaser.Math.Between(128, 810);
         platforms.create(x, y, 'start');
         var i;
-        for (i = 1; i <= Phaser.Math.Between(1,2); i++) {
+        for (i = 1; i <= Phaser.Math.Between(1, 2); i++) {
             platforms.create(x + 128 * i, y, 'middle')
         }
         platforms.create(x + 128 * i, y, 'end')
@@ -107,9 +107,9 @@ function create ()
     //#endregion
 
     //Score
-    ScoreText = this.add.text(16, 16, 'Stars: 0', {fontSize: '50px', fill: '#0000FF'}).setScrollFactor(0);
+    ScoreText = this.add.text(16, 16, 'Stars: 0', { fontSize: '50px', fill: '#0000FF' }).setScrollFactor(0);
 
-    LivesText = this.add.text(1600, 16, 'Lives: 5', {fontSize: '50px', fill: '#0000FF'}).setScrollFactor(0);
+    LivesText = this.add.text(1500, 16, showlife(), { fontSize: '50px', fill: '#0000FF' }).setScrollFactor(0);
 
     //Colider player, platforms
     this.physics.add.collider(player, platforms);
@@ -153,39 +153,31 @@ function create ()
     this.cameras.main.startFollow(player);
 }
 
-function update ()
-{
+function update() {
     //#region Movement
-    if (cursors.left.isDown)
-    {
+    if (cursors.left.isDown) {
         player.setVelocityX(-600);
     }
-    else if (cursors.right.isDown)
-    {
+    else if (cursors.right.isDown) {
         player.setVelocityX(600);
     }
-    else
-    {
+    else {
         player.setVelocityX(0);
     }
-    if (cursors.up.isDown)
-    {
+    if (cursors.up.isDown) {
         player.setVelocityY(-330);
     }
-    else if (cursors.down.isDown)
-    {
+    else if (cursors.down.isDown) {
         player.setVelocityY(330)
     }
-    else
-    {
+    else {
         player.setVelocityY(0);
     }
     //#endregion
 }
 
 //Collect star func
-function collectStar (player, star)
-{
+function collectStar(player, star) {
     star.disableBody(true, true);
 
     var bomb = bombs.create(20, 20, 'bomb');
@@ -196,13 +188,16 @@ function collectStar (player, star)
     Score += 1;
     ScoreText.setText('Stars: ' + Score);
 
-    if (Score == 138){
+    if (Score == 138) {
 
-        this.add.text(760, 540, 'Your game time: ' + timeElapsed,  {fontSize: '50px', fill: '#0000FF'}).setScrollFactor(0);
-        this.add.text(660, 490, 'For restart press: ENTER', {fontSize: '50px', fill: '#0000FF'}).setScrollFactor(0);
+        this.physics.pause();
+        
+
+        this.add.text(760, 540, 'Your game time: ' + timeElapsed, { fontSize: '50px', fill: '#0000FF' }).setScrollFactor(0);
+        this.add.text(660, 490, 'For restart press: ENTER', { fontSize: '50px', fill: '#0000FF' }).setScrollFactor(0);
 
         //Reload canvas
-        document.addEventListener('keyup', function(event) {
+        document.addEventListener('keyup', function (event) {
             if (event.code === 'Enter') {
                 window.location.reload();
             }
@@ -213,19 +208,19 @@ function collectStar (player, star)
 
 function hitBomb(player, bomb) {
 
-    lives = lives - 1;
-
-    LivesText.setText('Lives: ' + lives);
+    bomb.disableBody(true, true);
+    lives -= 1;
+    LivesText.setText(showlife());
 
     if (lives == 0) {
 
         this.physics.pause();
         player.setTint(0xff0000);
 
-        this.add.text(760, 540, 'Your game time: ' + timeElapsed,  {fontSize: '50px', fill: '#0000FF'}).setScrollFactor(0);
-        this.add.text(660, 490, 'For restart press: ENTER', {fontSize: '50px', fill: '#0000FF'}).setScrollFactor(0);
+        this.add.text(760, 540, 'Your game time: ' + timeElapsed, { fontSize: '50px', fill: '#0000FF' }).setScrollFactor(0);
+        this.add.text(660, 490, 'For restart press: ENTER', { fontSize: '50px', fill: '#0000FF' }).setScrollFactor(0);
 
-        document.addEventListener('keyup', function(event) {
+        document.addEventListener('keyup', function (event) {
             if (event.code === 'Enter') {
                 window.location.reload();
             }
@@ -237,4 +232,14 @@ function hitBomb(player, bomb) {
 function updateTimer() {
     timeElapsed++;
     TimerText.setText('Time: ' + timeElapsed);
+}
+
+function showlife() {
+    var lifeLine = ''
+
+    for (i = 0; i < lives; i++) {
+        lifeLine = lifeLine + '💖';
+    }
+
+    return lifeLine;
 }
