@@ -46,13 +46,19 @@ function preload() {
 
 function create() {
     //#region Background
-    this.background = this.add.image(0, 0, "background").setOrigin(0, 0).setScrollFactor(0);
+    this.background = this.add.image(0, 0, "background")
+        .setOrigin(0, 0)
+        .setScrollFactor(0);
 
     //Creating platforms
     platforms = this.physics.add.staticGroup();
 
     for (var x = 0; x <= worldWidth; x = x + 128) {
-        platforms.create(x, 1080 - 128, 'platform').setOrigin(0, 0).refreshBody();
+
+        platforms.create(x, 1080 - 128, 'platform')
+            .setOrigin(0, 0)
+            .refreshBody();
+
     }
 
     //Creating multi func for objects
@@ -60,11 +66,13 @@ function create() {
 
     function createWorldObjects(objects, asset) {
         for (var x = 0; x <= worldWidth; x = x + Phaser.Math.FloatBetween(500, 900)) {
+
             objects
                 .create(x, 1080 - 128, asset)
                 .setOrigin(0, 1)
                 .setScale(Phaser.Math.FloatBetween(0.8, 1.5,))
                 .setDepth(Phaser.Math.Between(1, 10))
+
         }
     }
 
@@ -77,12 +85,17 @@ function create() {
 
     //Creating levitating platforms
     for (var x = 0; x < worldWidth; x = x + Phaser.Math.Between(500, 700)) {
+
         var y = Phaser.Math.Between(128, 810);
+
         platforms.create(x, y, 'start');
-        var i;
-        for (i = 1; i <= Phaser.Math.Between(1, 2); i++) {
-            platforms.create(x + 128 * i, y, 'middle')
+
+        for (var i = 1; i <= Phaser.Math.Between(1, 2); i++) {
+
+            platforms.create(x + 128 * i, y, 'middle');
+
         }
+
         platforms.create(x + 128 * i, y, 'end')
     }
     //#endregion
@@ -191,7 +204,7 @@ function collectStar(player, star) {
     if (Score == 138) {
 
         this.physics.pause();
-        
+
 
         this.add.text(760, 540, 'Your game time: ' + timeElapsed, { fontSize: '50px', fill: '#0000FF' }).setScrollFactor(0);
         this.add.text(660, 490, 'For restart press: ENTER', { fontSize: '50px', fill: '#0000FF' }).setScrollFactor(0);
