@@ -32,7 +32,7 @@ var lives = 5;
 
 function preload() {
     // Load assets
-    this.load.image('background', 'assets/background/background.jpg');
+    this.load.image('background', 'assets/background/background.png');
     this.load.image('platform', 'assets/background/tiles/platform.png');
     this.load.image('star', 'assets/star.png');
     this.load.image('stone', 'assets/objects/Stone.png');
