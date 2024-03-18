@@ -108,6 +108,22 @@ function create() {
     cursors = this.input.keyboard.createCursorKeys();
     //#endregion
 
+    //#region Enemy
+
+    enemy = this.physics.add.group({
+        key: 'enemy',
+        repeat: 10,
+        setXY: { x: Phaser.Math.FloatBetween(500, 1000), y: 0, stepX: Phaser.Math.Between(100, 400) }
+    });
+
+    enemy.children.iterate(function(child) {
+        child.setCollideWorldBounds(true);
+    });
+
+    this.physics.add.collider(enemy, player);
+
+    //#endregion
+
     //#region Timer
     TimerText = this.add.text(16, 60, 'Time: 0', { fontSize: '50px', fill: '#0000FF' }).setScrollFactor(0);
 
@@ -187,6 +203,20 @@ function update() {
         player.setVelocityY(0);
     }
     //#endregion
+
+    //#region Enemy movement
+    enemy.children.iterate(function(child) {
+        // Calculate angle between enemy and player
+        let angle = Phaser.Math.Angle.Between(child.x, child.y, player.x, player.y);
+
+        // Move the enemy towards the player
+        let speed = 200;
+        let velocityX = Math.cos(angle) * speed;
+        let velocityY = Math.sin(angle) * speed;
+
+        child.setVelocity(velocityX, velocityY);
+    });
+    //#endregion
 }
 
 //Collect star func
@@ -217,6 +247,12 @@ function collectStar(player, star) {
         });
 
     }
+}
+
+function hitEnemy(player, enemy) {
+    enemy.disableBody(true, true);
+    lives -= 5;
+    LivesText.setText(showlife());
 }
 
 function hitBomb(player, bomb) {
@@ -256,3 +292,4 @@ function showlife() {
 
     return lifeLine;
 }
+
