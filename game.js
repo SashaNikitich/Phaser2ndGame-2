@@ -29,6 +29,7 @@ var timer;
 var timeElapsed = 0;
 var objects;
 var lives = 5;
+var gameOver = false;
 
 function preload() {
     // Load assets
@@ -41,10 +42,12 @@ function preload() {
     this.load.image('middle', 'assets/background/tiles/middle.png');
     this.load.image('end', 'assets/background/tiles/end.png');
     this.load.image('bomb', 'assets/bomb.png')
+    this.load.image('enemy', 'assets/')
     this.load.spritesheet('gg', 'assets/plane.png', { frameWidth: 90, frameHeight: 90 });
 }
 
 function create() {
+
     //#region Background
     this.background = this.add.image(0, 0, "background")
         .setOrigin(0, 0)
@@ -76,6 +79,9 @@ function create() {
         }
     }
 
+    //Collider platforms with objects
+    this.physics.add.collider(platforms, objects);
+
     //Creating objects
     stone = this.physics.add.staticGroup();
     createWorldObjects(stone, 'stone')
@@ -106,6 +112,10 @@ function create() {
     player.setCollideWorldBounds(true);
 
     cursors = this.input.keyboard.createCursorKeys();
+
+    //Colider player, platforms
+    this.physics.add.collider(player, platforms);
+
     //#endregion
 
     //#region Enemy
@@ -120,8 +130,7 @@ function create() {
         child.setCollideWorldBounds(true);
     });
 
-    this.physics.add.collider(enemy, player);
-
+    this.physics.add.overlap(player, enemy, hitEnemy, null, this);
     //#endregion
 
     //#region Timer
@@ -138,13 +147,8 @@ function create() {
     //Score
     ScoreText = this.add.text(16, 16, 'Stars: 0', { fontSize: '50px', fill: '#0000FF' }).setScrollFactor(0);
 
+    //Lives
     LivesText = this.add.text(1500, 16, showlife(), { fontSize: '50px', fill: '#0000FF' }).setScrollFactor(0);
-
-    //Colider player, platforms
-    this.physics.add.collider(player, platforms);
-    //Colider platforms, objects
-    this.physics.add.collider(platforms, objects);
-
 
     //#region Stars
     stars = this.physics.add.group({
@@ -183,6 +187,23 @@ function create() {
 }
 
 function update() {
+
+    //#region Game over
+    if (gameOver)
+    {
+        this.physics.pause();
+
+        this.add.text(660, 490, 'For restart press: ENTER', { fontSize: '50px', fill: '#0000FF' }).setScrollFactor(0);
+
+        //Reload canvas
+        document.addEventListener('keyup', function (event) {
+            if (event.code === 'Enter') {
+                window.location.reload();
+            }
+        });
+    }
+    //#endregion
+
     //#region Movement
     if (cursors.left.isDown) {
         player.setVelocityX(-600);
@@ -210,7 +231,7 @@ function update() {
         let angle = Phaser.Math.Angle.Between(child.x, child.y, player.x, player.y);
 
         // Move the enemy towards the player
-        let speed = 200;
+        let speed = 450;
         let velocityX = Math.cos(angle) * speed;
         let velocityY = Math.sin(angle) * speed;
 
@@ -249,12 +270,18 @@ function collectStar(player, star) {
     }
 }
 
+//Hit enemy func
 function hitEnemy(player, enemy) {
     enemy.disableBody(true, true);
     lives -= 5;
     LivesText.setText(showlife());
+
+    if (lives == 0) {
+        gameOver = true
+    }
 }
 
+//Hit bomb func
 function hitBomb(player, bomb) {
 
     bomb.disableBody(true, true);
@@ -262,19 +289,9 @@ function hitBomb(player, bomb) {
     LivesText.setText(showlife());
 
     if (lives == 0) {
-
-        this.physics.pause();
-        player.setTint(0xff0000);
-
-        this.add.text(760, 540, 'Your game time: ' + timeElapsed, { fontSize: '50px', fill: '#0000FF' }).setScrollFactor(0);
-        this.add.text(660, 490, 'For restart press: ENTER', { fontSize: '50px', fill: '#0000FF' }).setScrollFactor(0);
-
-        document.addEventListener('keyup', function (event) {
-            if (event.code === 'Enter') {
-                window.location.reload();
-            }
-        });
+        gameOver = true
     }
+
 }
 
 //Timer update func
@@ -283,6 +300,7 @@ function updateTimer() {
     TimerText.setText('Time: ' + timeElapsed);
 }
 
+//Life function
 function showlife() {
     var lifeLine = ''
 
@@ -292,4 +310,3 @@ function showlife() {
 
     return lifeLine;
 }
-
