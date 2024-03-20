@@ -42,7 +42,7 @@ function preload() {
     this.load.image('middle', 'assets/background/tiles/middle.png');
     this.load.image('end', 'assets/background/tiles/end.png');
     this.load.image('bomb', 'assets/bomb.png')
-    this.load.image('enemy', 'assets/')
+    this.load.image('enemy', 'assets/rocket (2).png')
     this.load.spritesheet('gg', 'assets/plane.png', { frameWidth: 90, frameHeight: 90 });
 }
 
@@ -229,14 +229,18 @@ function update() {
     enemy.children.iterate(function(child) {
         // Calculate angle between enemy and player
         let angle = Phaser.Math.Angle.Between(child.x, child.y, player.x, player.y);
-
+    
+        // Set the rotation of the rocket/enemy towards the player
+        child.rotation = angle;
+    
         // Move the enemy towards the player
-        let speed = 450;
+        let speed = 200;
         let velocityX = Math.cos(angle) * speed;
         let velocityY = Math.sin(angle) * speed;
-
+    
         child.setVelocity(velocityX, velocityY);
     });
+    
     //#endregion
 }
 
